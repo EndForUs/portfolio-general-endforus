@@ -172,7 +172,9 @@
 
   function socialGroup() {
     return socials.map(function (s) {
-      return "<a class='slide social-hover-" + s[1] + "' href='" + s[2] + "' target='_blank' rel='noopener noreferrer'>" +
+      // pointer-events preserved; click vs drag distinction handled in endDrag
+      return "<a class='slide social-hover-" + s[1] + "' href='" + s[2] +
+        "' target='_blank' rel='noopener noreferrer' aria-label='" + s[0] + "'>" +
         icon(s[1]) + "<span>" + s[0] + "</span></a>";
     }).join("");
   }
@@ -229,14 +231,13 @@
       startX = e.clientX;
       startScroll = marquee.scrollLeft;
       marquee.classList.add("dragging");
-      marquee.setPointerCapture(e.pointerId);
       stopAuto();
     });
 
     marquee.addEventListener("pointermove", function (e) {
       if (!dragging) return;
       var dx = e.clientX - startX;
-      if (Math.abs(dx) > 3) moved = true;
+      if (Math.abs(dx) > 6) moved = true;
       marquee.scrollLeft = startScroll - dx;
       var gw = groupWidth();
       if (gw > 0) {
@@ -251,13 +252,18 @@
       marquee.classList.remove("dragging");
       resumeTimer = setTimeout(startAuto, RESUME_DELAY);
     }
-    marquee.addEventListener("pointerup", endDrag);
-    marquee.addEventListener("pointercancel", endDrag);
+    // NO pointer capture here: capturing on the strip retargets the browser
+    // `click` to the strip itself, so slide links would never open. Instead
+    // listen on window to end the drag even if the pointer leaves mid-drag.
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
     marquee.addEventListener("mouseleave", function () {
       if (dragging) endDrag();
     });
 
     track.addEventListener("click", function (e) {
+      // Only block navigation when the user actually dragged:
+      // a full, clean tap lets the native <a href> + target="_blank" fire.
       if (moved) {
         e.preventDefault();
         e.stopPropagation();
@@ -308,11 +314,38 @@
     return engineInstance;
   }
 
+  /* ─── Audio duration helper ─── */
+  function formatDuration(secs) {
+    if (!isFinite(secs) || secs <= 0) return "--:--";
+    var m = Math.floor(secs / 60);
+    var s = Math.floor(secs % 60);
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
   function initPlayers() {
     var cards = document.querySelectorAll(".sound-card");
     cards.forEach(function (card) {
       var engine = createEngine(card);
       var btn = card.querySelector(".play-btn");
+      var label = card.querySelector(".play-label");
+      var audio = card.querySelector(".track");
+
+      /* ── Load duration and display it ── */
+      if (audio && label) {
+        function applyDuration() {
+          if (audio.duration && isFinite(audio.duration)) {
+            label.textContent = formatDuration(audio.duration);
+          }
+        }
+        if (audio.readyState >= 1) {
+          applyDuration();
+        } else {
+          audio.addEventListener("loadedmetadata", applyDuration);
+          // Trigger metadata fetch without loading the full file
+          if (audio.preload === "none") { audio.preload = "metadata"; audio.load(); }
+        }
+      }
+
       btn.addEventListener("click", function () {
         if (activeEngine && activeEngine !== engine) {
           activeEngine.stop();
@@ -404,39 +437,93 @@
     });
   }
 
-  /* ================= LIGHTBOX ================= */
+  /* ================= LIGHTBOX WITH CAROUSEL ================= */
   var lightbox = document.getElementById("lightbox");
-  var lightboxImg = lightbox ? lightbox.querySelector(".lightbox-img") : null;
   var lightboxClose = lightbox ? lightbox.querySelector(".lightbox-close") : null;
+  var lightboxImg = lightbox ? lightbox.querySelector(".lightbox-img") : null;
+  var lightboxPrev = lightbox ? lightbox.querySelector(".lightbox-prev") : null;
+  var lightboxNext = lightbox ? lightbox.querySelector(".lightbox-next") : null;
+  var lightboxCounter = lightbox ? lightbox.querySelector(".lightbox-counter") : null;
+
+  var lbImages = [];   // [{src, alt}]
+  var lbIndex  = 0;
+
+  function lbShow(idx) {
+    if (!lbImages.length) return;
+    lbIndex = (idx + lbImages.length) % lbImages.length;
+    var item = lbImages[lbIndex];
+    if (lightboxImg) {
+      lightboxImg.style.opacity = "0";
+      setTimeout(function () {
+        lightboxImg.src = item.src;
+        lightboxImg.alt = item.alt || "";
+        lightboxImg.style.opacity = "1";
+      }, 160);
+    }
+    if (lightboxCounter) {
+      lightboxCounter.textContent = (lbIndex + 1) + " / " + lbImages.length;
+    }
+    // Show/hide nav arrows
+    if (lightboxPrev) lightboxPrev.style.display = lbImages.length > 1 ? "" : "none";
+    if (lightboxNext) lightboxNext.style.display = lbImages.length > 1 ? "" : "none";
+  }
 
   function openLightbox(src, alt) {
-    if (!lightbox || !lightboxImg) return;
-    lightboxImg.src = src;
-    lightboxImg.alt = alt || "";
+    // Build image list from current gallery at open time
+    lbImages = [];
+    document.querySelectorAll(".g-item img, .thumb-card img").forEach(function (img) {
+      lbImages.push({ src: img.src, alt: img.alt || "" });
+    });
+    // Find clicked image index
+    var startIdx = 0;
+    for (var i = 0; i < lbImages.length; i++) {
+      if (lbImages[i].src === src) { startIdx = i; break; }
+    }
+    if (!lightbox) return;
     lightbox.classList.add("active");
+    lbShow(startIdx);
   }
 
   function closeLightbox() {
     if (!lightbox) return;
     lightbox.classList.remove("active");
-    setTimeout(function() {
-      if (lightboxImg) lightboxImg.src = "";
+    setTimeout(function () {
+      if (lightboxImg) { lightboxImg.src = ""; lightboxImg.style.opacity = "1"; }
     }, 400);
   }
 
-  if (lightbox && lightboxClose) {
-    lightboxClose.addEventListener("click", closeLightbox);
-    lightbox.addEventListener("click", function(e) {
+  if (lightbox) {
+    if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", function (e) {
       if (e.target === lightbox) closeLightbox();
     });
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "Escape" && lightbox.classList.contains("active")) closeLightbox();
+    if (lightboxPrev) lightboxPrev.addEventListener("click", function () { lbShow(lbIndex - 1); });
+    if (lightboxNext) lightboxNext.addEventListener("click", function () { lbShow(lbIndex + 1); });
+
+    // Keyboard navigation
+    document.addEventListener("keydown", function (e) {
+      if (!lightbox.classList.contains("active")) return;
+      if (e.key === "Escape")     closeLightbox();
+      if (e.key === "ArrowLeft")  lbShow(lbIndex - 1);
+      if (e.key === "ArrowRight") lbShow(lbIndex + 1);
     });
+
+    // Touch / swipe support
+    var lbTouchX = 0;
+    lightbox.addEventListener("touchstart", function (e) {
+      lbTouchX = e.touches[0].clientX;
+    }, { passive: true });
+    lightbox.addEventListener("touchend", function (e) {
+      var dx = e.changedTouches[0].clientX - lbTouchX;
+      if (Math.abs(dx) > 40) {
+        dx < 0 ? lbShow(lbIndex + 1) : lbShow(lbIndex - 1);
+      }
+    }, { passive: true });
   }
 
   function bindLightbox() {
-    document.querySelectorAll(".g-item, .thumb-card").forEach(function(item) {
-      item.addEventListener("click", function() {
+    document.querySelectorAll(".g-item, .thumb-card").forEach(function (item) {
+      item.addEventListener("click", function () {
         var img = this.querySelector("img");
         if (img) openLightbox(img.src, img.alt);
       });
