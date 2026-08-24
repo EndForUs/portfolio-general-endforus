@@ -101,6 +101,11 @@
   </div>
   <div class="menu-foot">
     <span>&copy; 2026 ENDFORUS | Todos los derechos reservados</span>
+    <div class="volume-control" aria-label="Global audio volume">
+      <label class="volume-label" for="globalVolume">Volumen</label>
+      <input id="globalVolume" class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Global audio volume">
+      <output id="globalVolumeValue" for="globalVolume">80%</output>
+    </div>
     <a class="to-top" href="#hero">Volver Arriba</a>
   </div>
 </nav>
@@ -374,11 +379,18 @@
   <button class="lightbox-prev" aria-label="Previous image">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
   </button>
-  <img class="lightbox-img" src="" alt="">
+  <div class="lightbox-stage">
+    <img class="lightbox-img" src="" alt="">
+  </div>
   <button class="lightbox-next" aria-label="Next image">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
   </button>
+  <button class="lightbox-zoom" type="button" aria-label="Activate image zoom" aria-pressed="false">
+    <svg class="zoom-in-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5M10.8 7.8v6M7.8 10.8h6"/></svg>
+    <svg class="zoom-out-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5M7.8 10.8h6"/></svg>
+  </button>
   <span class="lightbox-counter"></span>
+  <div class="lightbox-thumbs" aria-label="Image previews"></div>
 </div>
 
 <audio id="menuOpenAudio" src="assets/audio/menu/open.m4a" preload="auto"></audio>

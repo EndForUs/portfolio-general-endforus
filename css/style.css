@@ -265,6 +265,42 @@ body.menu-open .menu-nav a:nth-child(6) .m-num{transition-delay:.55s}
 }
 .menu-foot span{font-size:var(--text-2xs);letter-spacing:.16em;text-transform:uppercase;color:var(--gray-600)}
 
+/* global volume control */
+.volume-control{
+  display:flex;align-items:center;justify-content:center;gap:var(--space-xs);
+  min-height:var(--tap);color:var(--gray-700);
+}
+.volume-label,.volume-control output{
+  font-size:var(--text-2xs);letter-spacing:.16em;text-transform:uppercase;
+  white-space:nowrap;
+}
+.volume-control output{min-width:3.5em;color:var(--gray-600);text-align:right}
+.volume-slider{
+  --volume:80%;
+  width:clamp(150px,20vw,240px);height:var(--tap);margin:0;
+  appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;
+}
+.volume-slider:focus-visible{outline:2px solid var(--c-white);outline-offset:3px}
+.volume-slider::-webkit-slider-runnable-track{
+  height:4px;border-radius:999px;
+  background:linear-gradient(90deg,var(--c-white) 0 var(--volume),var(--gray-500) var(--volume) 100%);
+}
+.volume-slider::-moz-range-track{
+  height:4px;border-radius:999px;background:var(--gray-500);
+}
+.volume-slider::-moz-range-progress{height:4px;border-radius:999px;background:var(--c-white)}
+.volume-slider::-webkit-slider-thumb{
+  appearance:none;-webkit-appearance:none;
+  width:18px;height:18px;margin-top:-7px;border:2px solid var(--c-black);
+  border-radius:50%;background:var(--c-white);box-shadow:0 0 0 1px var(--c-white);
+}
+.volume-slider::-moz-range-thumb{
+  width:14px;height:14px;border:2px solid var(--c-black);
+  border-radius:50%;background:var(--c-white);box-shadow:0 0 0 1px var(--c-white);
+}
+.volume-slider:active::-webkit-slider-thumb{transform:scale(1.15)}
+.volume-slider:active::-moz-range-thumb{transform:scale(1.15)}
+
 /* ============================================================
    HERO
 ============================================================ */
@@ -620,13 +656,20 @@ body.menu-open .menu-nav a:nth-child(6) .m-num{transition-delay:.55s}
   inset: 0;
   z-index: 999;
   background: rgba(0,0,0,0.95);
-  display: flex;
+  display: grid;
+  grid-template-areas:
+    "close close close"
+    "prev stage next"
+    "counter counter counter"
+    "thumbs thumbs thumbs";
+  grid-template-columns: minmax(48px,1fr) minmax(0, min(88vw,1100px)) minmax(48px,1fr);
+  grid-template-rows: 64px minmax(0,1fr) auto auto;
   align-items: center;
   justify-content: center;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.4s ease, visibility 0.4s ease;
-  padding: var(--space-md);
+  padding: var(--space-sm) var(--safe-r) calc(var(--space-sm) + var(--safe-b)) var(--safe-l);
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
 }
@@ -635,19 +678,22 @@ body.menu-open .menu-nav a:nth-child(6) .m-num{transition-delay:.55s}
   visibility: visible;
 }
 .lightbox-img {
+  display:block;
   max-width: 100%;
-  max-height: 100vh;
+  max-height: 100%;
   object-fit: contain;
   transform: scale(0.9);
-  transition: transform 0.4s var(--ease-out);
+  transform-origin:center;
+  transition: transform 0.4s var(--ease-out), opacity .16s ease;
+  flex:0 0 auto;
 }
 .lightbox.active .lightbox-img {
   transform: scale(1);
 }
 .lightbox-close {
   position: absolute;
-  top: var(--space-md);
-  right: var(--space-md);
+  top: calc(var(--space-sm) + var(--safe-t));
+  right: calc(var(--space-sm) + var(--safe-r));
   font-size: 2.5rem;
   line-height: 1;
   color: var(--c-white);
@@ -664,6 +710,76 @@ body.menu-open .menu-nav a:nth-child(6) .m-num{transition-delay:.55s}
 }
 .lightbox-close:hover {
   transform: scale(1.1);
+}
+
+.lightbox-stage{
+  grid-area:stage;
+  min-width:0;min-height:0;
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  touch-action:none;
+}
+.lightbox-prev,.lightbox-next{
+  width:var(--tap);height:var(--tap);border:1px solid var(--gray-500);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(20,20,20,.75);color:var(--c-white);z-index:2;
+  transition:background var(--dur),color var(--dur),border-color var(--dur),transform var(--dur) var(--ease-phys);
+}
+.lightbox-prev{grid-area:prev;justify-self:center}
+.lightbox-next{grid-area:next;justify-self:center}
+.lightbox-prev:hover,.lightbox-next:hover{background:var(--c-white);color:var(--c-black);border-color:var(--c-white)}
+.lightbox-prev:active,.lightbox-next:active{transform:scale(.9)}
+.lightbox-prev svg,.lightbox-next svg{width:22px;height:22px}
+.lightbox-counter{
+  grid-area:counter;justify-self:center;
+  padding:var(--space-2xs) var(--space-sm);
+  color:var(--gray-700);font-size:var(--text-2xs);letter-spacing:.2em;
+  text-transform:uppercase;line-height:1;border:1px solid var(--line);
+  border-radius:999px;background:rgba(15,15,15,.7);
+}
+.lightbox-thumbs{
+  grid-area:thumbs;width:min(100%,900px);min-width:0;
+  display:flex;gap:var(--space-2xs);overflow-x:auto;justify-self:center;
+  padding:var(--space-2xs) 0 0;scrollbar-width:none;
+}
+.lightbox-thumbs::-webkit-scrollbar{display:none}
+.lightbox-thumb{
+  width:64px;height:48px;flex:0 0 auto;padding:0;overflow:hidden;
+  border:1px solid var(--gray-500);background:var(--gray-200);opacity:.55;
+  transition:opacity var(--dur),border-color var(--dur),transform var(--dur) var(--ease-phys);
+}
+.lightbox-thumb img{width:100%;height:100%;object-fit:cover}
+.lightbox-thumb.is-active{opacity:1;border-color:var(--c-white);transform:translateY(-2px)}
+.lightbox-zoom{display:none}
+
+/* Touch-first lightbox layout for phones and tablets. */
+@media (max-width:1024px){
+  .lightbox{
+    grid-template-areas:"close close" "stage stage" "counter zoom";
+    grid-template-columns:1fr auto;
+    grid-template-rows:56px minmax(0,1fr) 52px;
+    padding:var(--space-xs) var(--safe-r) calc(var(--space-xs) + var(--safe-b)) var(--safe-l);
+  }
+  .lightbox-stage{touch-action:pan-x pan-y}
+  .lightbox-prev,.lightbox-next,.lightbox-thumbs{display:none!important}
+  .lightbox-counter{justify-self:start;margin-left:var(--space-xs)}
+  .lightbox-zoom{
+    grid-area:zoom;display:flex;align-items:center;justify-content:center;
+    width:var(--tap);height:var(--tap);border:1px solid var(--gray-500);
+    border-radius:50%;background:rgba(20,20,20,.8);color:var(--c-white);
+  }
+  .lightbox-zoom:active{transform:scale(.9)}
+  .lightbox-zoom svg{width:21px;height:21px}
+  .lightbox-zoom .zoom-out-icon{display:none}
+  .lightbox.zoomed .lightbox-zoom .zoom-in-icon{display:none}
+  .lightbox.zoomed .lightbox-zoom .zoom-out-icon{display:block}
+  .lightbox.zoomed .lightbox-stage{overflow:auto;align-items:flex-start;justify-content:flex-start}
+  .lightbox.zoomed .lightbox-img{width:200%;max-width:none;max-height:none;transform:none}
+}
+
+@media (min-width:1025px){
+  .lightbox.zoomed .lightbox-stage{overflow:auto}
 }
 
 /* ============================================================
@@ -804,3 +920,31 @@ body.menu-open .menu-nav a:nth-child(6) .m-num{transition-delay:.55s}
   border-radius: 0;
 }
 
+/* ============================================================
+   MENÚ EN TELÉFONOS (≤480px) — solo navegador de secciones
+   Redes y correo ocultos (se sumarán cuando la web esté lista).
+   El navegador queda centrado en el div del menú.
+============================================================ */
+@media (max-width:480px){
+  .menu-info{display:none}
+  .menu-inner{align-content:center;justify-items:center}
+  .menu-nav{align-items:center;text-align:center}
+  .menu-nav a{justify-content:center;gap:var(--space-sm);padding:var(--space-sm) 0}
+  .menu-nav a::after{display:none}
+  .menu-nav a .m-num{font-size:var(--text-xs)}
+  .menu-nav a .m-text{font-size:clamp(1.5rem,6vw,1.75rem)}
+}
+
+/* ============================================================
+   MENÚ EN TABLET (900–1300px) — navegador de secciones
+   un poco más pequeño (sin exagerar)
+============================================================ */
+@media (min-width:900px) and (max-width:1300px){
+  .menu-nav a .m-text{font-size:clamp(2.375rem,2.75vw + 1rem,2.75rem)}
+}
+
+@media (max-width:480px){
+  .volume-control{flex:1 1 100%;order:2;justify-content:center}
+  .volume-slider{width:min(58vw,220px)}
+  .menu-foot .to-top{order:3}
+}

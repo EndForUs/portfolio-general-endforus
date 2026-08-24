@@ -2,17 +2,18 @@ window.siteData = {
   // Configuración de las Ilustraciones
   // Puedes cambiar el nombre, código y la ruta base (sin la extensión .webp/.avif/.svg)
   galleryItems: [
-    ["Pantalla De Iglesia I",  "ART-01", "assets/images/illustration/1.webp"],
-    ["Fondos Iglesia I",       "ART-02", "assets/images/illustration/2.webp"],
-    ["Pantalla De Iglesia II",    "ART-03", "assets/images/illustration/3.webp"],
-    ["Fondos Iglesia II",         "ART-04", "assets/images/illustration/4.webp"],
-    ["Pantalla De Iglesia III",   "ART-05", "assets/images/illustration/5.webp"],
-    ["FONDO PERSONALIZADO",        "ART-06", "assets/images/illustration/6.webp"],
-    ["ICONOS PARA INSTAGRAM",          "ART-07", "assets/images/illustration/7.webp"],
-    ["LOGOS PARA CLANES",       "ART-08", "assets/images/illustration/8.webp"],
-    ["MOCKUP CHICA GYM I",     "ART-09", "assets/images/illustration/9.webp"],
-    ["MOCKUP CHICA GYM II",          "ART-10", "assets/images/illustration/10.webp"],
-    ["YOUTUBERS I",         "ART-11", "assets/images/illustration/11.webp"]
+    ["Pantalla De Iglesia I",  "AT-01", "assets/images/illustration/1.webp"],
+    ["Fondos Iglesia I",       "AT-02", "assets/images/illustration/2.webp"],
+    ["Pantalla De Iglesia II",    "AT-03", "assets/images/illustration/3.webp"],
+    ["Fondos Iglesia II",         "AT-04", "assets/images/illustration/4.webp"],
+    ["Pantalla De Iglesia III",   "AT-05", "assets/images/illustration/5.webp"],
+    ["FONDO PERSONALIZADO",        "AT-06", "assets/images/illustration/6.webp"],
+    ["ICONOS PARA INSTAGRAM",          "AT-07", "assets/images/illustration/7.webp"],
+    ["LOGOS PARA CLANES",       "AT-08", "assets/images/illustration/8.webp"],
+    ["MOCKUP CHICA GYM I",     "AT-09", "assets/images/illustration/9.webp"],
+    ["MOCKUP CHICA GYM II",          "AT-10", "assets/images/illustration/10.webp"],
+    ["YOUTUBERS I",         "AT-11", "assets/images/illustration/11.webp"],
+    ["YOUTUBERS II",        "AT-12", "assets/images/illustration/12.webp"],
   ],
 
   // Configuración de las Miniaturas (Thumbnails)

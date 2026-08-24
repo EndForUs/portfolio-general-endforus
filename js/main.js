@@ -4,6 +4,37 @@
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var body = document.body;
 
+  /* ================= GLOBAL AUDIO VOLUME ================= */
+  var globalVolume = 0.8;
+  var volumeInput = document.getElementById("globalVolume");
+  var volumeOutput = document.getElementById("globalVolumeValue");
+
+  try {
+    var savedVolume = window.localStorage.getItem("endforus-volume");
+    if (savedVolume !== null && isFinite(Number(savedVolume))) {
+      globalVolume = Math.max(0, Math.min(1, Number(savedVolume)));
+    }
+  } catch (e) {}
+
+  function setGlobalVolume(value) {
+    globalVolume = Math.max(0, Math.min(1, Number(value)));
+    document.querySelectorAll("audio").forEach(function (audio) {
+      audio.volume = globalVolume;
+    });
+    if (volumeInput) {
+      volumeInput.value = globalVolume;
+      volumeInput.style.setProperty("--volume", Math.round(globalVolume * 100) + "%");
+      volumeInput.setAttribute("aria-valuetext", Math.round(globalVolume * 100) + "%");
+    }
+    if (volumeOutput) volumeOutput.textContent = Math.round(globalVolume * 100) + "%";
+    try { window.localStorage.setItem("endforus-volume", String(globalVolume)); } catch (e) {}
+  }
+
+  setGlobalVolume(globalVolume);
+  if (volumeInput) volumeInput.addEventListener("input", function () {
+    setGlobalVolume(volumeInput.value);
+  });
+
   /* ================= FULLSCREEN MENU ================= */
   var burger = document.getElementById("menuBtn");
   var fullMenu = document.getElementById("fullMenu");
@@ -425,6 +456,7 @@
       el.addEventListener("mouseenter", function() {
         // Clonamos el elemento de audio para permitir sonidos superpuestos (polyphony)
         var soundClone = hoverAudio.cloneNode();
+        soundClone.volume = globalVolume;
         var playPromise = soundClone.play();
         if (playPromise !== undefined) {
           playPromise.catch(function() { /* Silenciar error si el navegador lo bloquea sin interacción previa */ });
@@ -444,9 +476,30 @@
   var lightboxPrev = lightbox ? lightbox.querySelector(".lightbox-prev") : null;
   var lightboxNext = lightbox ? lightbox.querySelector(".lightbox-next") : null;
   var lightboxCounter = lightbox ? lightbox.querySelector(".lightbox-counter") : null;
+  var lightboxStage = lightbox ? lightbox.querySelector(".lightbox-stage") : null;
+  var lightboxZoom = lightbox ? lightbox.querySelector(".lightbox-zoom") : null;
+  var lightboxThumbs = lightbox ? lightbox.querySelector(".lightbox-thumbs") : null;
 
   var lbImages = [];   // [{src, alt}]
   var lbIndex  = 0;
+
+  function renderLightboxThumbs() {
+    if (!lightboxThumbs) return;
+    lightboxThumbs.innerHTML = "";
+    lbImages.forEach(function (item, idx) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "lightbox-thumb";
+      button.setAttribute("aria-label", "Open image " + (idx + 1));
+      button.addEventListener("click", function () { lbShow(idx); });
+      var image = document.createElement("img");
+      image.src = item.src;
+      image.alt = item.alt || "";
+      image.loading = "lazy";
+      button.appendChild(image);
+      lightboxThumbs.appendChild(button);
+    });
+  }
 
   function lbShow(idx) {
     if (!lbImages.length) return;
@@ -462,6 +515,14 @@
     }
     if (lightboxCounter) {
       lightboxCounter.textContent = (lbIndex + 1) + " / " + lbImages.length;
+    }
+    if (lightboxThumbs) {
+      lightboxThumbs.querySelectorAll(".lightbox-thumb").forEach(function (thumb, idx) {
+        thumb.classList.toggle("is-active", idx === lbIndex);
+        thumb.setAttribute("aria-current", idx === lbIndex ? "true" : "false");
+      });
+      var activeThumb = lightboxThumbs.querySelector(".lightbox-thumb.is-active");
+      if (activeThumb) activeThumb.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
     // Show/hide nav arrows
     if (lightboxPrev) lightboxPrev.style.display = lbImages.length > 1 ? "" : "none";
@@ -480,13 +541,20 @@
       if (lbImages[i].src === src) { startIdx = i; break; }
     }
     if (!lightbox) return;
+    renderLightboxThumbs();
+    lightbox.classList.remove("zoomed");
+    if (lightboxZoom) lightboxZoom.setAttribute("aria-pressed", "false");
     lightbox.classList.add("active");
+    lightbox.setAttribute("aria-hidden", "false");
     lbShow(startIdx);
   }
 
   function closeLightbox() {
     if (!lightbox) return;
     lightbox.classList.remove("active");
+    lightbox.classList.remove("zoomed");
+    lightbox.setAttribute("aria-hidden", "true");
+    if (lightboxZoom) lightboxZoom.setAttribute("aria-pressed", "false");
     setTimeout(function () {
       if (lightboxImg) { lightboxImg.src = ""; lightboxImg.style.opacity = "1"; }
     }, 400);
@@ -499,13 +567,19 @@
     });
     if (lightboxPrev) lightboxPrev.addEventListener("click", function () { lbShow(lbIndex - 1); });
     if (lightboxNext) lightboxNext.addEventListener("click", function () { lbShow(lbIndex + 1); });
+    if (lightboxZoom) lightboxZoom.addEventListener("click", function () {
+      var zoomed = lightbox.classList.toggle("zoomed");
+      lightboxZoom.setAttribute("aria-pressed", zoomed ? "true" : "false");
+      lightboxZoom.setAttribute("aria-label", zoomed ? "Deactivate image zoom" : "Activate image zoom");
+      if (zoomed && lightboxStage) lightboxStage.scrollTo({ left: 0, top: 0 });
+    });
 
     // Keyboard navigation
     document.addEventListener("keydown", function (e) {
       if (!lightbox.classList.contains("active")) return;
-      if (e.key === "Escape")     closeLightbox();
-      if (e.key === "ArrowLeft")  lbShow(lbIndex - 1);
-      if (e.key === "ArrowRight") lbShow(lbIndex + 1);
+      if (e.key === "Escape") { closeLightbox(); return; }
+      if (e.key === "ArrowLeft")  { e.preventDefault(); lbShow(lbIndex - 1); }
+      if (e.key === "ArrowRight") { e.preventDefault(); lbShow(lbIndex + 1); }
     });
 
     // Touch / swipe support
@@ -514,6 +588,7 @@
       lbTouchX = e.touches[0].clientX;
     }, { passive: true });
     lightbox.addEventListener("touchend", function (e) {
+      if (lightbox.classList.contains("zoomed")) return;
       var dx = e.changedTouches[0].clientX - lbTouchX;
       if (Math.abs(dx) > 40) {
         dx < 0 ? lbShow(lbIndex + 1) : lbShow(lbIndex - 1);
