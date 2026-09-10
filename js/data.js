@@ -33,7 +33,7 @@ window.siteData = {
     ["Spotify",      "spotify",   "https://open.spotify.com/intl-es/artist/0aYzpNh2INm6eI0ZBvbUxw"],
     ["SoundCloud",   "soundcloud","https://soundcloud.com/endforus"],
     ["COMING SOON...",      "youtube",   "https://youtube.com"],
-    ["Instagram",    "instagram", "https://www.instagram.com/endtunes/"],
+    ["Instagram",    "instagram", "https://www.instagram.com/endforusgl/"],
     ["X / Twitter",  "x",         "https://x.com/EndForUX"],
     ["Telegram",     "telegram",  "https://t.me/EndForUsOK"],
     ["WhatsApp",     "whatsapp",  "https://whatsapp.com/channel/0029Vb9GI1u9cDDYZw0GEF1r"]
