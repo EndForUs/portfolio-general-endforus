@@ -13,7 +13,8 @@ window.siteData = {
     ["MOCKUP CHICA GYM I",     "AT-09", "assets/images/illustration/9.webp"],
     ["MOCKUP CHICA GYM II",          "AT-10", "assets/images/illustration/10.webp"],
     ["YOUTUBERS I",         "AT-11", "assets/images/illustration/11.webp"],
-    ["YOUTUBERS II",        "AT-12", "assets/images/illustration/12.webp"],
+    ["ANX - YT",        "AT-12", "assets/images/illustration/12.webp"],
+    ["LINKK - YT",        "AT-13", "assets/images/illustration/13.webp"],
   ],
 
   // Configuración de las Miniaturas (Thumbnails)
