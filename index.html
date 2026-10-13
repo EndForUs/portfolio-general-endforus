@@ -33,8 +33,8 @@
     <ul class="menu-nav">
       <li><a href="#hero" data-link="hero"><span class="m-num">01</span><span class="m-text">Home</span></a></li>
       <li><a href="#sound-design" data-link="sound-design"><span class="m-num">02</span><span class="m-text">Sound Design</span></a></li>
-      <li><a href="#illustration" data-link="illustration"><span class="m-num">03</span><span class="m-text">Illustraciones</span></a></li>
-      <li><a href="#thumbnails" data-link="thumbnails"><span class="m-num">04</span><span class="m-text">Próximamente</span></a></li>
+      <li><a href="#illustration" data-link="illustration"><span class="m-num">03</span><span class="m-text">Creaciones</span></a></li>
+      <li><a href="#thumbnails" data-link="thumbnails"><span class="m-num">04</span><span class="m-text">Miniaturas</span></a></li>
       <li><a href="#socials" data-link="socials"><span class="m-num">05</span><span class="m-text">Social Media</span></a></li>
       <li><a href="#footer"><span class="m-num">06</span><span class="m-text">Contacto</span></a></li>
     </ul>
@@ -57,7 +57,7 @@
             </svg>
           </a>
           <!-- Instagram -->
-          <a href="https://www.instagram.com/endforusgl/" class="social-hover-instagram" target="_blank" rel="noopener" aria-label="Instagram">
+          <a href="https://www.instagram.com/endtunes/" class="social-hover-instagram" target="_blank" rel="noopener" aria-label="Instagram">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/>
               <circle cx="12" cy="12" r="4.5"/>
@@ -258,7 +258,7 @@
     <div class="container">
       <div class="section-head reveal">
         <span class="sec-index">02</span>
-        <h2 class="sec-title">Illu<span class="outline">straciones</span></h2>
+        <h2 class="sec-title">Crea<span class="outline">ciones</span></h2>
         <span class="sec-rule"></span>
       </div>
       <p class="sec-sub reveal">Ejemplos de diseños para banners, stickers, cosas generales, logos, diapositivas u otros recursos ilustrativos o visuales.</p>
@@ -266,46 +266,27 @@
     </div>
   </section>
 
-  <!-- ============ PRÓXIMAMENTE ============ -->
+  <!-- ============ DISEÑO GRÁFICO ============ -->
   <section class="section thumbnails-section" id="thumbnails">
     <div class="container">
       <div class="section-head reveal">
         <span class="sec-index">03</span>
-        <h2 class="sec-title">Diseño <span class="outline">Gráfico</span></h2>
+        <h2 class="sec-title">Minia<span class="outline">turas</span></h2>
         <span class="sec-rule"></span>
       </div>
 
-      <div class="coming-soon-wrap reveal">
+      <p class="sec-sub reveal">Miniaturas y arte visual para proyectos, portadas y contenido. Desliza para explorar cada diseño.</p>
 
-        <!-- Icono decorativo -->
-        <div class="cs-icon" aria-hidden="true">
-          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="32" cy="32" r="31" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 4"/>
-            <path d="M20 32h24M32 20l12 12-12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-
-        <!-- Badge label -->
-        <span class="cs-badge">Próximamente</span>
-
-        <!-- Título principal -->
-        <h3 class="cs-headline">Miniaturas &amp; Arte Visual</h3>
-
-        <!-- Mensaje personalizado -->
-        <p class="cs-body">
-          Si me contratas estaría siempre para tus miniaturas de calidad —
-          ten eso por seguro. Y tú serías parte de este portafolio bonito.
-        </p>
-
-        <!-- Divisor decorativo -->
-        <div class="cs-divider" aria-hidden="true">
-          <span></span><span class="cs-dot"></span><span></span>
-        </div>
-
-        <!-- CTA -->
-        <a href="mailto:contactwiththeend@gmail.com" class="btn btn-ghost cs-cta">Contáctame</a>
-
+      <div class="thumb-carousel reveal" id="thumbCarousel">
+        <button class="thumb-arrow thumb-prev" type="button" aria-label="Anterior miniatura">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="thumb-track" id="thumbGrid"></div>
+        <button class="thumb-arrow thumb-next" type="button" aria-label="Siguiente miniatura">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
       </div>
+      <div class="thumb-dots" id="thumbDots" aria-hidden="true"></div>
     </div>
   </section>
 

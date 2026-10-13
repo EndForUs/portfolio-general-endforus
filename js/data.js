@@ -13,19 +13,18 @@ window.siteData = {
     ["MOCKUP CHICA GYM I",     "AT-09", "assets/images/illustration/9.webp"],
     ["MOCKUP CHICA GYM II",          "AT-10", "assets/images/illustration/10.webp"],
     ["YOUTUBERS I",         "AT-11", "assets/images/illustration/11.webp"],
-    ["ANX - YT",        "AT-12", "assets/images/illustration/12.webp"],
-    ["LINKK - YT",        "AT-13", "assets/images/illustration/13.webp"],
+    ["YOUTUBERS II",        "AT-12", "assets/images/illustration/12.webp"],
   ],
 
   // Configuración de las Miniaturas (Thumbnails)
-  // Puedes cambiar el título, formato, año y la ruta base de la imagen
+  // [título, formato, año, ruta, descripción (opcional, se muestra si formato = "Video")]
   thumbItems: [
-    ["Metamorphosis", "LP", "2026", "assets/images/thumbnails/thumb01"],
-    ["Night Bus", "Video", "2025", "assets/images/thumbnails/thumb02"],
-    ["Static Bloom", "EP", "2025", "assets/images/thumbnails/thumb03"],
-    ["Hollow City", "LP", "2024", "assets/images/thumbnails/thumb04"],
-    ["Signal Lost", "Video", "2024", "assets/images/thumbnails/thumb05"],
-    ["Paper Moon", "Single", "2023", "assets/images/thumbnails/thumb06"]
+    ["(CONCEPT) Video Estilo Critica-Información", "Video", "2026", "assets/images/thumbnails/1.webp", "Atención: Video conceptual con estilo de crítica e información, utilizando tipografía cinética, por otro lado no se tiene algo personal en contra de cualquier creador involucrado."],
+    ["(CONCEPT) CONTER DEDSAFIO #3", "Video", "2026", "assets/images/thumbnails/2.webp", "Ejemplo de uno de los capítulos de su serie, de tal manera que pueda prsentar el momento ante el video, y la epicidad."],
+    ["(CONCEPT) CONTER DEDSAFIO #18", "Video", "2026", "assets/images/thumbnails/3.webp", "Versión sencilla de representar la muerte de las 47b personas ante un BOSS de alta magnitud."],
+    ["KRONOS RPG-7 MODE", "Video", "2026", "assets/images/thumbnails/4.webp", "Video Real para trabajo ajustado a presupuesto para el usuario, sencillo, al grano."],
+    ["(CONCEPT) TUTORIAL SIMPLE CONCEPT", "Video", "2026", "assets/images/thumbnails/5.webp", "Concepto para mejorar la organizacion de las bases en Hytale, como un tutorial o serie en Youtube, con un estilo sencillo y minimalista."],
+    ["KRONOS ROBLOX MODE", "Video", "2026", "assets/images/thumbnails/6.webp", "Video Real para trabajo ajustado a presupuesto para el usuario, sencillo, al grano."],
   ],
 
   // Configuración de las Redes Sociales
@@ -34,7 +33,7 @@ window.siteData = {
     ["Spotify",      "spotify",   "https://open.spotify.com/intl-es/artist/0aYzpNh2INm6eI0ZBvbUxw"],
     ["SoundCloud",   "soundcloud","https://soundcloud.com/endforus"],
     ["COMING SOON...",      "youtube",   "https://youtube.com"],
-    ["Instagram",    "instagram", "https://www.instagram.com/endforusgl/"],
+    ["Instagram",    "instagram", "https://www.instagram.com/endtunes/"],
     ["X / Twitter",  "x",         "https://x.com/EndForUX"],
     ["Telegram",     "telegram",  "https://t.me/EndForUsOK"],
     ["WhatsApp",     "whatsapp",  "https://whatsapp.com/channel/0029Vb9GI1u9cDDYZw0GEF1r"]

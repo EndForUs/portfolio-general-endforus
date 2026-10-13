@@ -136,17 +136,86 @@
   function buildThumbs() {
     var box = document.getElementById("thumbGrid");
     if (!box) return;
-    box.innerHTML = thumbItems.map(function (it, idx) {
-      var ratio = idx % 3 === 1 ? " ratio-43" : idx % 3 === 2 ? " ratio-34" : "";
-      var dim = idx % 3 === 1 ? [480, 360] : idx % 3 === 2 ? [360, 480] : [420, 420];
-      var path = it[3] || (THUMB + String(idx + 1).padStart(2, "0"));
+    box.innerHTML = thumbItems.map(function (it) {
+      var dim = [420, 420];
+      var path = it[3];
+      var imgHtml;
+      if (/\.(webp|png|jpg|jpeg|avif|svg)$/i.test(path)) {
+        imgHtml = "<img src='" + path + "' width='" + dim[0] + "' height='" + dim[1] + "' alt='" +
+          it[0] + " cover art' loading='lazy' decoding='async'>";
+      } else {
+        imgHtml = pic(path, dim[0], dim[1], it[0] + " cover art", thumbSizes, { lazy: true });
+      }
+      var desc = (it[1] === "Video" && it[4]) ? "<p class='thumb-desc'>" + it[4] + "</p>" : "";
       return "<div class='thumb-card'>" +
-        "<div class='thumb-media" + ratio + "'>" +
-        pic(path, dim[0], dim[1], it[0] + " cover art", thumbSizes, { lazy: true }) +
+        "<div class='thumb-media'>" +
+        imgHtml +
         "</div>" +
+        desc +
         "<div class='thumb-info'><span class='thumb-name'>" + it[0] +
         "</span><span class='thumb-date'>" + it[1] + " · " + it[2] + "</span></div></div>";
     }).join("");
+  }
+
+  function initThumbCarousel() {
+    var carousel = document.getElementById("thumbCarousel");
+    var track = document.getElementById("thumbGrid");
+    var dotsBox = document.getElementById("thumbDots");
+    if (!carousel || !track || !dotsBox) return;
+    var prev = carousel.querySelector(".thumb-prev");
+    var next = carousel.querySelector(".thumb-next");
+    var cards = track.querySelectorAll(".thumb-card");
+    var dotCount = 3;
+    var perPage = Math.max(1, Math.ceil(cards.length / dotCount));
+    var dots = [];
+
+    dotsBox.innerHTML = "";
+    for (var d = 0; d < dotCount; d++) {
+      var dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "thumb-dot";
+      dot.setAttribute("data-idx", d);
+      dot.setAttribute("aria-label", "Ir a la página " + (d + 1) + " de miniaturas");
+      dot.addEventListener("click", function () {
+        goThumb(parseInt(this.getAttribute("data-idx"), 10) * perPage);
+      });
+      dotsBox.appendChild(dot);
+      dots.push(dot);
+    }
+
+    function currentIndex() {
+      if (!cards.length) return 0;
+      var base = cards[0].offsetLeft;
+      var best = 0, bestDist = Infinity;
+      for (var i = 0; i < cards.length; i++) {
+        var dist = Math.abs(track.scrollLeft - (cards[i].offsetLeft - base));
+        if (dist < bestDist) { bestDist = dist; best = i; }
+      }
+      return best;
+    }
+
+    function page() {
+      return Math.min(dotCount - 1, Math.floor(currentIndex() / perPage));
+    }
+
+    function syncDots() {
+      var active = page();
+      dots.forEach(function (d, idx) { d.classList.toggle("is-active", idx === active); });
+    }
+
+    function goThumb(idx) {
+      var base = cards[0].offsetLeft;
+      var target = cards[idx] ? (cards[idx].offsetLeft - base) : 0;
+      track.scrollTo({ left: target, behavior: reduced ? "auto" : "smooth" });
+    }
+
+    if (prev) prev.addEventListener("click", function () { goThumb(Math.max(0, page() - 1) * perPage); });
+    if (next) next.addEventListener("click", function () { goThumb(Math.min(cards.length - 1, (page() + 1) * perPage)); });
+    track.addEventListener("scroll", function () {
+      window.requestAnimationFrame(syncDots);
+    }, { passive: true });
+    window.addEventListener("resize", syncDots);
+    syncDots();
   }
 
   /* ================= SOCIAL ICONS ================= */
@@ -480,8 +549,25 @@
   var lightboxZoom = lightbox ? lightbox.querySelector(".lightbox-zoom") : null;
   var lightboxThumbs = lightbox ? lightbox.querySelector(".lightbox-thumbs") : null;
 
-  var lbImages = [];   // [{src, alt}]
+  var lbCollection = null;   // 'gallery' | 'thumbs'
+  var lbImages = [];         // [{src, alt}]
   var lbIndex  = 0;
+
+  function collectGalleryImages() {
+    var list = [];
+    document.querySelectorAll(".g-item img").forEach(function (img) {
+      list.push({ src: img.src, alt: img.alt || "" });
+    });
+    return list;
+  }
+
+  function collectThumbImages() {
+    var list = [];
+    document.querySelectorAll(".thumb-card img").forEach(function (img) {
+      list.push({ src: img.src, alt: img.alt || "" });
+    });
+    return list;
+  }
 
   function renderLightboxThumbs() {
     if (!lightboxThumbs) return;
@@ -529,13 +615,9 @@
     if (lightboxNext) lightboxNext.style.display = lbImages.length > 1 ? "" : "none";
   }
 
-  function openLightbox(src, alt) {
-    // Build image list from current gallery at open time
-    lbImages = [];
-    document.querySelectorAll(".g-item img, .thumb-card img").forEach(function (img) {
-      lbImages.push({ src: img.src, alt: img.alt || "" });
-    });
-    // Find clicked image index
+  function openLightbox(src, alt, collection) {
+    lbCollection = collection === "thumbs" ? "thumbs" : "gallery";
+    lbImages = lbCollection === "thumbs" ? collectThumbImages() : collectGalleryImages();
     var startIdx = 0;
     for (var i = 0; i < lbImages.length; i++) {
       if (lbImages[i].src === src) { startIdx = i; break; }
@@ -597,10 +679,16 @@
   }
 
   function bindLightbox() {
-    document.querySelectorAll(".g-item, .thumb-card").forEach(function (item) {
+    document.querySelectorAll(".g-item").forEach(function (item) {
       item.addEventListener("click", function () {
         var img = this.querySelector("img");
-        if (img) openLightbox(img.src, img.alt);
+        if (img) openLightbox(img.src, img.alt, "gallery");
+      });
+    });
+    document.querySelectorAll(".thumb-card").forEach(function (item) {
+      item.addEventListener("click", function () {
+        var img = this.querySelector("img");
+        if (img) openLightbox(img.src, img.alt, "thumbs");
       });
     });
   }
@@ -608,6 +696,7 @@
   /* ================= INIT ================= */
   buildGallery();
   buildThumbs();
+  initThumbCarousel();
   buildSocials();
   initPlayers();
   bindLightbox();
